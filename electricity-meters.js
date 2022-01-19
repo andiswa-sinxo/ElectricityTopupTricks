@@ -8,31 +8,40 @@ module.exports = function(pool) {
 	}
 
 	// for a given street show all the meters and their balances
-	function streetMeters(streetId) {
-		const meter = await pool.query('select street_number, balance from electricity_meter where street_id = $1', [streetId])
+	async function streetMeters(streetId) {
+		const meter = await pool.query('select id, balance from electricity_meter where street_id = $1', [streetId])
 			return meter.rows
 	}
 
 	// return all the appliances
-	function appliances() {
-		const appliances = await pool.query('select * from appliances');
+	async function appliances() {
+		const appliances = await pool.query('select * from appliance');
 			return appliances.rows
 
 	}
 
 	// increase the meter balance for the meterId supplied
-	function topupElectricity(meterId, units) {
-		const topup = await pool.query('update electricity_meter set balance + $3 where ')
+	async function topupElectricity(meterId, units) {
+		const topup = await pool.query('update electricity_meter set meter_number = balance + 50 where id = $1', [meterId, units]);
+			return topup.rows
 	}
 	
 	// return the data for a given balance
-	function meterData(meterId) {
-	
+	async function meterData(meterId) {
+		const data = await pool.query('select balance from electricity_meter where id = $1', [meterId]);
+			return data.rows
 	}
 
 	// decrease the meter balance for the meterId supplied
-	function useElectricity(meterId, units) {
-	
+	async function useElectricity(meterId, units) {
+		const decrease = await pool.query('update electricity_meter set meter_number = balance - 2 where id = $1', [meterId, units]);
+		return decrease.rows
+	}
+
+	// total electricity used
+	async function totalStreetBalance(balance){
+		const total = await pool.query('select sum(street_id * balance) from electricity_meter where balance = $3', [balance]);
+			return total.rows
 	}
 
 	return {
@@ -41,7 +50,8 @@ module.exports = function(pool) {
 		appliances,
 		topupElectricity,
 		meterData,
-		useElectricity
+		useElectricity,
+		totalStreetBalance
 	}
 
 
