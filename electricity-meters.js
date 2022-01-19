@@ -3,8 +3,13 @@ module.exports = function(pool) {
 
 	// list all the streets the we have on records
 	async function streets() {
-		const streets = await pool.query(`select * from street`);
-		return streets.rows;
+		try {
+			const streets = await pool.query(`select * from street`);
+			return streets.rows;
+		} catch (error) {
+			console.log(error)
+		}
+		
 	}
 
 	// for a given street show all the meters and their balances
